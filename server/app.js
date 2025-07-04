@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import express from "express";
 import morgan from "morgan";
 import cors from 'cors';

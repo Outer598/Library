@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import pg from 'pg';
 import env from "dotenv";
 import path from 'path';
