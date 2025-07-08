@@ -1,18 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Sidebar from './Components/Sidebar';
 import Navbar from './Components/Navbar';
 import Carousel from './Components/Carousel';
 import Covers from './Components/Covers';
+import axios from 'axios';
 
 function App() {
   const [isExpanded, setIsExpanded] = useState(true)
+  const [latest, setLatest] = useState([])
 
   function updateIsExpanded(state){
     setIsExpanded(state)
   }
 
-  console.log(isExpanded);
+  useEffect(() =>{
+        axios.get('/api/latest')
+        .then(res =>{
+            setLatest(res.data)
+        })
+        .catch(err =>{
+            console.log(err)
+        })
+    }, [])
   
   return (
     <>
@@ -31,8 +41,16 @@ function App() {
           <Carousel />
           <div>
             <h2 className='text-[32px] font-bold mb-[23px]'>Latest</h2>
-            <div>
-              <Covers />
+            <div className={`flex flex-wrap ${isExpanded ? "gap-[70px]" : "gap-[120px]"}`}>
+              { latest.map((book) =>{
+                return (<Covers 
+                    key={book.id}
+                    id={book.id}
+                    cover={book.cover}
+                    name={book.name}
+                    genre={book.genre}
+                />)
+              }) }
             </div>
           </div>
         </div>

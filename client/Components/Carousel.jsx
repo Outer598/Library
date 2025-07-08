@@ -1,58 +1,60 @@
 import React, {useState, useEffect} from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import axios from "axios";
 
 
-const slides = [
-    {
-        name: "i am testing",
-        img: 'https://images.unsplash.com/photo-1526779259212-939e64788e3c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8ZnJlZSUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D'
-    },
-    {
-        name: "i am testing5",
-        img: 'https://images.unsplash.com/photo-1526779259212-939e64788e3c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8ZnJlZSUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D'
-    },
-    {
-        name: "i am testing4",
-        img: 'https://images.unsplash.com/photo-1575936123452-b67c3203c357?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D'
-    },
-    {
-        name: "i am testing3",
-        img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUPIfiGgUML8G3ZqsNLHfaCnZK3I5g4tJabQ&s'
-    },
-]
 
 function Carousel() {
     const [curr, setCurr] = useState(0);
+    const [popular, setPopular] = useState([]);
 
     const autoSlideInterval = 3000;
 
     function prev(){
-        setCurr((curr) => (curr === 0 ? slides.length - 1 : curr - 1))
+        setCurr((curr) => (curr === 0 ? popular.length - 1 : curr - 1))
     }
     
     function next(){
-        setCurr((curr) => (curr === slides.length - 1 ? 0 : curr + 1))
+        setCurr((curr) => (curr === popular.length - 1 ? 0 : curr + 1))
     }
 
     useEffect(() =>{
         const slideInterval =  setInterval(() => {
-            setCurr(curr => curr === slides.length - 1 ? 0 : curr + 1);
+            setCurr(curr => curr === popular.length - 1 ? 0 : curr + 1);
         }, autoSlideInterval);
 
         return () => clearInterval(slideInterval)
+    }, [popular.length])
+
+    useEffect (() =>{
+        axios.get("/api/popular")
+        .then(res =>{
+            setPopular(res.data)
+        })
+        .catch(err =>{
+            console.log(err)
+        })
     }, [])
+
   return (
     <div className="overflow-hidden relative w-full h-[346px] ">
         <div className="p-[20px] overflow-hidden bg-[#E5E7EB] rounded-[20px]">
             <div className="flex gap-[350px] transition-all ease-in-out delay-50">
-                <a href="">
-                    <img src={slides[curr].img} className="rounded-[10px] w-[350px] h-[300px]"/>
-                </a>
-                <div className="self-center">
+                {popular[curr] &&
+                <>
+                <div className="w-[280px] h-[300px] rounded-[10px]">
                     <a href="">
-                        <h4>{slides[curr].name}</h4>
+                        <img src={popular[curr].cover} className="w-full h-full rounded-[10px]" alt={popular[curr].name}/>
                     </a>
                 </div>
+                <div className="self-center">
+                    <a href="">
+                        <h3>{popular[curr].name}</h3>
+                    </a>
+                    <span className="opacity-40">{popular[curr].views}</span>
+                    <p>{`${popular[curr].synopsis.slice(0, 100)}...`}</p>
+                </div>
+                </>}
             </div>
         </div>
         <div className="absolute top-[120px] left-0 right-0 flex justify-between items-center p-[20px] pointer-events-none">
@@ -65,7 +67,7 @@ function Carousel() {
         </div>
         <div className="absolute  bottom-8 left-0 right-0 flex items-end justify-center">
             <div className="flex items-center justify-center gap-2">
-                {slides.map((_, i)=>(
+                {popular.map((_, i)=>(
                     <div key={i} className={`transition-all w-2 h-2 bg-white rounded-full ${curr === i ? "p-1.5": "opacity-50"}`} />
                 )) }
             </div>
